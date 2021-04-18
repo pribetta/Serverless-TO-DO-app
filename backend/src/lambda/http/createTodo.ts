@@ -13,9 +13,7 @@ import * as AWS from 'aws-sdk'
 const itemsTable = process.env.TODOITEMS_TABLE
 const bucketName = process.env.ATTACHMENTS_BUCKET
 
-const s3 = new AWS.S3({
-  signatureVersion: 'v4'
-})
+
 const docClient = new AWS.DynamoDB.DocumentClient()
 
 export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
@@ -27,8 +25,8 @@ export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEven
   const token = words[1]
   const userId = parseUserId(token)
   const todoId = uuid.v4()
-  const preUrl = getUploadUrl(todoId)
-  const newItem: TodoItem = {
+
+  const item: TodoItem = {
     userId,
     todoId,
     createdAt: new Date().toISOString(),
@@ -37,31 +35,39 @@ export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEven
     done: false,
     attachmentUrl: `https://${bucketName}.s3.amazonaws.com/${todoId}`
   }
-
-  await docClient.put({
-    TableName: itemsTable,
-    Item: newItem
-  }).promise()
-
-  return {
-    statusCode: 201,
-    headers: {
-      "Access-Control-Allow-Headers" : 'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token',
-      'Access-Control-Allow-Origin':'*',
-      'Access-Control-Allow-Credentials': true
-    },
-    body: JSON.stringify({
-      newItem,
-      uploadUrl: preUrl
-    })
+  console.log(JSON.stringify({
+    item: item
+  }))
+  
+  try{
+    await docClient.put({
+      TableName: itemsTable,
+      Item: item
+    }).promise()
+  
+    return {
+      statusCode: 201,
+      headers: {
+        "Access-Control-Allow-Headers" : 'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token',
+        'Access-Control-Allow-Origin':'*',
+        'Access-Control-Allow-Credentials': true
+      },
+      body: JSON.stringify({
+        item: item
+      })
+    }
+  }catch(err){
+    console.log(err)
+    return {
+      statusCode: 404,
+      headers: {
+        "Access-Control-Allow-Headers" : 'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token',
+        'Access-Control-Allow-Origin':'*',
+        'Access-Control-Allow-Credentials': true
+      },
+      body:''
+    }
   }
+  
 }
 
-function getUploadUrl(todoId: string)
-{
-  return s3.getSignedUrl('putObject', {
-    Bucket: bucketName,
-    Key: todoId,
-    Expires: 300
-  })
-}

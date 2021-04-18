@@ -51,6 +51,7 @@ export class Todos extends React.PureComponent<TodosProps, TodosState> {
         name: this.state.newTodoName,
         dueDate
       })
+      alert('Todo creation succeeded')
       this.setState({
         todos: [...this.state.todos, newTodo],
         newTodoName: ''

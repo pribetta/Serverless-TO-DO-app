@@ -33,13 +33,15 @@ export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEven
         'Access-Control-Allow-Origin':'*',
         'Access-Control-Allow-Credentials': true
       },
-      body: JSON.stringify(items)
+      body: JSON.stringify({
+        items:items.Items
+      })
     }
   }catch(err){
     console.log(err)
 
     return {
-      statusCode: 200,
+      statusCode: 404,
       headers: {
         "Access-Control-Allow-Headers" : 'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token',
         'Access-Control-Allow-Origin':'*',

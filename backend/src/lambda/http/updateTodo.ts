@@ -26,7 +26,7 @@ export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEven
     if(res.Count<1){
       throw new Error('No such todo item')
     }
-    const updatedItem = await docClient.update({
+    await docClient.update({
       TableName: itemsTable,
       Key: {
         userId: res.Items[0].userId,
@@ -58,19 +58,19 @@ export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEven
         'Access-Control-Allow-Origin':'*',
         'Access-Control-Allow-Credentials': true
       },
-      body: JSON.stringify(updatedItem)
+      body: ''
     }
 
   }catch(err){
     console.log('update failed ', err)
     return {
-      statusCode: 400,
+      statusCode: 404,
       headers: {
         "Access-Control-Allow-Headers" : 'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token',
         'Access-Control-Allow-Origin':'*',
         'Access-Control-Allow-Credentials': true
       },
-      body: err
+      body: ''
     }
   }
   // TODO: Update a TODO item with the provided id using values in the "updatedTodo" object

@@ -3,7 +3,7 @@ import 'source-map-support/register'
 import { APIGatewayProxyEvent, APIGatewayProxyResult, APIGatewayProxyHandler } from 'aws-lambda'
 import * as AWS from 'aws-sdk'
 
-const bucketName = process.env.TODOITEMS_TABLE
+const bucketName = process.env.ATTACHMENTS_BUCKET
 const s3 = new AWS.S3({
   signatureVersion: 'v4'
 })

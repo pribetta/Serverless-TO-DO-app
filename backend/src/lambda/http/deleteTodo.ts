@@ -55,12 +55,12 @@ export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEven
         'Access-Control-Allow-Origin':'*',
         'Access-Control-Allow-Credentials': true
       },
-      body: 'Delete succeeded'
+      body: ''
     }
   }catch(err){
     console.log('Unable to delete item - ', err)
     return {
-      statusCode: 400,
+      statusCode: 404,
       headers: {
         "Access-Control-Allow-Headers" : 'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token',
         'Access-Control-Allow-Origin':'*',
