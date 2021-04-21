@@ -2,11 +2,7 @@ import 'source-map-support/register'
 
 import { APIGatewayProxyEvent, APIGatewayProxyResult, APIGatewayProxyHandler } from 'aws-lambda'
 import { parseUserId } from '../../auth/utils'
-import * as AWS from 'aws-sdk'
-
-const docClient = new AWS.DynamoDB.DocumentClient()
-const itemsTable = process.env.TODOITEMS_TABLE
-// const itemsIndex = process.env.TODO_INDEX
+import { getTodoItem } from '../../businessLogic/todos'
 
 export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
   // TODO: Get all TODO items for a current user
@@ -15,16 +11,11 @@ export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEven
   const words = authHeader.split(' ')
   const token = words[1]
   const userId = parseUserId(token)
-  console.log(' user id ', userId, ' token: ', token)
+  console.log(' user id ', userId)
+
+
   try{
-    const items = await docClient.query({
-      TableName: itemsTable,
-      KeyConditionExpression : 'userId = :userId',
-      ExpressionAttributeValues: {
-        ':userId': userId
-      },
-      ScanIndexForward: false
-    }).promise()
+    const retBody = await getTodoItem(userId)
   
     return {
       statusCode: 200,
@@ -33,9 +24,7 @@ export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEven
         'Access-Control-Allow-Origin':'*',
         'Access-Control-Allow-Credentials': true
       },
-      body: JSON.stringify({
-        items:items.Items
-      })
+      body: retBody
     }
   }catch(err){
     console.log(err)
@@ -47,7 +36,7 @@ export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEven
         'Access-Control-Allow-Origin':'*',
         'Access-Control-Allow-Credentials': true
       },
-      body: 'No To Do items found'
+      body: 'Error retrieving to do items'
     }
   }
   
